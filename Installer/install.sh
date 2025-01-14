@@ -49,12 +49,12 @@ systemctl enable AprilTagsPipeline.service
 # add path modification in /etc/profile.d/ if not already there
 # why two? idk. it just apparently should have both?
 if [ ! -f /etc/profile.d/AddAppsToPaf.sh ]; then
-	cp AddAppsToPaf.sh /etc/profile.d/AddAppsToPaf.sh
+	cp AddAppsToPath.sh /etc/profile.d/AddAppsToPath.sh
 fi
 
 # now onto the AprilTags specific items
 cp -R AprilTags/ /apps/
-cp bin/* /apps/bin/
+cp -R  bin/* /apps/bin/
 
 echo "The AprilTags service has been installed and enabled. Run 'AprilTags.sh --update all' in the Cuda project root to sync it to be run."
 echo "HINT: program not found error? run 'export PATH=\$PATH:/apps/bin' in your session"

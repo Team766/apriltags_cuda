@@ -5,7 +5,7 @@ function help() {
     echo "-h to print this menu"
     echo "-v to print verbose"
     echo "--validate or -V {option} to validate something"
-    echo "--update or -u to update the running frontend/backend from the cuda root"
+    echo "--update or -u to update the running backend from the cuda root"
     echo "ex. -V lockfile"
     echo
     echo "if you try to run two different commands in one command, one might exit before the other"
