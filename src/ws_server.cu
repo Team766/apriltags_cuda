@@ -48,6 +48,7 @@ DEFINE_bool(rotate_vertical, false,
 DEFINE_bool(rotate_horizontal, false,
             "Rotates image by 90 degrees prior to detecting apriltags");
 DEFINE_int32(port, 8080, "Server port to run webserver");
+DEFINE_string(camera_name, "", "name of camera as setup on java side");
 
 enum ExposureMode { AUTO = 0, MANUAL = 1 };
 
@@ -436,7 +437,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
   void stop() { running_ = false; }
 
  private:
-  DoubleArraySender tagSender_{"raw_pose"};
+  DoubleArraySender tagSender_{FLAGS_camera_name};
   NetworkTablesUtil ntUtil_{};
   std::set<seasocks::WebSocket*> clients_;
   std::mutex mutex_;
@@ -462,7 +463,10 @@ int main(int argc, char* argv[]) {
         << "Usage: ws_server -camera_idx <index> -cal_file <path to cal file -port <webserver port>";
   }
   
-
+  if(FLAGS_camera_name.empty()) {
+    LOG(ERROR) << "camera_name is required";
+    return 1;
+  }
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   if (!std::filesystem::exists(FLAGS_cal_file)) {
