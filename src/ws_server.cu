@@ -47,7 +47,7 @@ DEFINE_bool(rotate_vertical, false,
             "Rotates image by 180 degrees prior to detecting apriltags");
 DEFINE_bool(rotate_horizontal, false,
             "Rotates image by 90 degrees prior to detecting apriltags");
-DEFINE_int32(port, 8080, "Server port to run webserver");
+DEFINE_int32(port, -1, "Server port to run webserver");
 DEFINE_string(camera_name, "", "name of camera as setup on java side");
 
 enum ExposureMode { AUTO = 0, MANUAL = 1 };
@@ -458,12 +458,12 @@ int main(int argc, char* argv[]) {
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  if(FLAGS_cal_file.empty()) {
-    LOG(ERROR)
-        << "Usage: ws_server -camera_idx <index> -cal_file <path to cal file -port <webserver port>";
+  if (FLAGS_cal_file.empty()) {
+    LOG(ERROR) << "Usage: ws_server -camera_idx <index> -cal_file <path to cal "
+                  "file -port <webserver port>";
   }
-  
-  if(FLAGS_camera_name.empty()) {
+
+  if (FLAGS_camera_name.empty()) {
     LOG(ERROR) << "camera_name is required";
     return 1;
   }
@@ -484,9 +484,19 @@ int main(int argc, char* argv[]) {
     handler->startReadAndSendThread(FLAGS_camera_idx, FLAGS_cal_file,
                                     FLAGS_rotate_vertical,
                                     FLAGS_rotate_horizontal);
+    int port = 8080;
+    if (FLAGS_port == -1) {
+      // User did not specify the port so make it relative to
+      // the camera idx to support multiple cameras seamlessly.
+      port += FLAGS_camera_idx;
 
-    server->serve("public", FLAGS_port);
-    
+    } else {
+      // User asked for a specific port so we'll serve from that.
+      port = FLAGS_port;
+    }
+    LOG(INFO) << "Serving the webpage on port " << port;
+    server->serve("public", port);
+
     handler->stop();
     handler->joinReadAndSendThread();
   } catch (const std::exception& e) {

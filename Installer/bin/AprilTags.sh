@@ -5,7 +5,7 @@ function help() {
     echo "-h to print this menu"
     echo "-v to print verbose"
     echo "--validate or -V {option} to validate something"
-    echo "--update or -u to update the running frontend/backend from the cuda root"
+    echo "--update or -u to update the running backend from the cuda root"
     echo "ex. -V lockfile"
     echo
     echo "if you try to run two different commands in one command, one might exit before the other"
@@ -79,15 +79,15 @@ if [ ! -z ${valitem+x} ]; then
             # lockfile is there
             printV "lockfile present, checking if backend is being run"
             if [ $PID -ne 0 ]; then
-                # echo "lockfile=true;running=true;"
+                echo "lockfile=true;running=true;"
                 printV "The service appears to be running and stable."
             else
                 rm /apps/AprilTags/servicerunning
                 if [ $? -ne 0 ]; then
-                    # echo "lockfile=rm;running=false;"
+                    echo "lockfile=rm;running=false;"
                     printV "Lockfile found with the service not running, it could not be deleted, feel free to delete it."
                 else
-                    # echo "lockfile=false;runnning=false;"
+                    echo "lockfile=false;runnning=false;"
                     printV "Lockfile found with no services running, it is now deleted."
                 fi
             fi
@@ -95,17 +95,17 @@ if [ ! -z ${valitem+x} ]; then
             # lockfile missing, check if anything is runing
             printV "lockfile is not there"
             if [ $PID -eq 0 ]; then
-                # echo "lockfile=false;running=false;"
+                echo "lockfile=false;running=false;"
                 printV "The AprilTags service is offline and the lockfile is not there."
             else
                 printV "The lockfile is missing and at least one of the services is running."
                 touch /apps/AprilTags/servicerunning
                 if [ $? -ne 0 ]; then
-                    # echo "lockfile=add;running=true;"
+                    echo "lockfile=add;running=true;"
                     printV "The lockfile couldn't be created. please make it, or stop the processes!"
                     printV "Go to the ApriltagsManager.sh script and run it with 'stop'"
                 else
-                    # echo "lockfile=true;running=true;"
+                    echo "lockfile=true;running=true;"
                     printV "Service is online, the lockfile is now in place."
                 fi
             fi
@@ -137,12 +137,18 @@ elif [ $update == "t" ]; then
     printV "copying backend..."
     cp -R build/* /apps/AprilTags/Backend/
     
+    printV "copying data..."
     # remove the existing data dir if it exists then replace it
     if [ -d /apps/AprilTags/data ]; then
     	rm -rf /apps/AprilTags/data
     fi
     if [ -d data ]; then
     	cp -R data/ /apps/AprilTags/data/
+    fi
+    
+    printV "copying public server files..."
+    if [ -d public ]; then
+        cp -R public/ /apps/AprilTags/public
     fi
     
     printV "The files were sucessfully coppied"

@@ -44,8 +44,7 @@ function isDirEmpty() {
 if [[ $fullrm == "t" ]]; then
 	if [ -z "$( ls -A '/apps/bin/' )" ]; then
 		rm -d /apps/bin
-		rm /etc/profile.d/AddAppsToPaf.sh
-		rm /etc/profile.d/AddAppsToPaf.csh
+		rm /etc/profile.d/AddAppsToPath.sh
 	fi
 
 	if [ -z "$( ls -A '/apps/' )" ]; then
