@@ -399,6 +399,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
             networktables_pose_data.push_back(pose.t->data[0]);
             networktables_pose_data.push_back(pose.t->data[1]);
             networktables_pose_data.push_back(pose.t->data[2]);
+            status_.sendValue(2001);
           }
 
           // Send the pose data
@@ -420,6 +421,8 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
                     << std::endl;
 
           detector.ReinitializeDetections();
+        } else {
+          status_.sendValue(2041);
         }
         broadcastPoseData(pose_json);
         tagSender_.sendValue(networktables_pose_data);
@@ -434,10 +437,14 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
     teardown_tag_family(&tf, tag_family);
   }
 
-  void stop() { running_ = false; }
+  void stop() {
+    status_.sendValue(4001); 
+    running_ = false; 
+  }
 
  private:
   DoubleArraySender tagSender_{FLAGS_camera_name};
+  IntegerValueSender status_{FLAGS_camera_name + "_status"};
   NetworkTablesUtil ntUtil_{};
   std::set<seasocks::WebSocket*> clients_;
   std::mutex mutex_;
@@ -453,23 +460,27 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
 };
 
 int main(int argc, char* argv[]) {
+  status_.sendValue(4251);
   google::InitGoogleLogging(argv[0]);
   google::SetVLOGLevel("*", FLAGS_v);
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   if(FLAGS_cal_file.empty()) {
+    status_.sendValue(4002);
     LOG(ERROR)
         << "Usage: ws_server -camera_idx <index> -cal_file <path to cal file -port <webserver port>";
   }
   
   if(FLAGS_camera_name.empty()) {
+    status_.sendValue(4003);
     LOG(ERROR) << "camera_name is required";
     return 1;
   }
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   if (!std::filesystem::exists(FLAGS_cal_file)) {
+    status_.sendValue(4004);
     LOG(ERROR) << "calibration file does not exist: " << FLAGS_cal_file;
     return 1;
   }
@@ -490,11 +501,13 @@ int main(int argc, char* argv[]) {
     handler->stop();
     handler->joinReadAndSendThread();
   } catch (const std::exception& e) {
+    status_.sendValue(4005);
     LOG(ERROR) << e.what();
     return 1;
   }
 
   gflags::ShutDownCommandLineFlags();
+
 
   return 0;
 }
