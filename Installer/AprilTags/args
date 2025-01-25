@@ -1,6 +1,6 @@
 # Please be careful editing this file!
 # It looks odd and it is structured in two seperate ways, but it is fine, write inside the echo for backend
-# ${camIndex} is the video index of the camera, ${camID} is the id of the camera (by serial), and ${camLoc} is the location of the camera on the robot (as in tr for example to be top right)
-backend='eval echo "-camera_idx ${camIndex} -cal_file /apps/AprilTags/data/calibration/calibrationmatrix_${camID}.json -camera_name cam${camID}"'
+# ${camIndex} is the video index of the camera, ${camID} is the id of the camera (by serial), and ${camLoc} is the location of the camera on the robot (by whatever standard wanted), and ${camFilePlace} is the file that holds the offset
+backend='eval echo "-camera_idx ${camIndex} -cal_file /apps/AprilTags/data/calibration/calibrationmatrix_${camID}.json -camera_name ${camLoc} -camera_offset ${camFilePlace}"'
 # manager
 autormlockfile="true"
