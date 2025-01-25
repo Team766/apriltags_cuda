@@ -73,16 +73,16 @@ if [ ! -z ${valitem+x} ]; then
     printV "validating arg $valitem..."
     if [[ $valitem == "lockfile" ]]; then
         # check for the existance of the lock
-        PID=$(libAprilTags.sh pid "/apps/AprilTags/Backend/ws_server")
+        PID=$(libAprilTags.sh pid "/opt/AprilTags/Backend/ws_server")
         printV "BackendPID is $backPID. (zero is not running)"
-        if [ -f /apps/AprilTags/servicerunning ]; then
+        if [ -f /opt/AprilTags/servicerunning ]; then
             # lockfile is there
             printV "lockfile present, checking if backend is being run"
             if [ $PID -ne 0 ]; then
                 echo "lockfile=true;running=true;"
                 printV "The service appears to be running and stable."
             else
-                rm /apps/AprilTags/servicerunning
+                rm /opt/AprilTags/servicerunning
                 if [ $? -ne 0 ]; then
                     echo "lockfile=rm;running=false;"
                     printV "Lockfile found with the service not running, it could not be deleted, feel free to delete it."
@@ -99,7 +99,7 @@ if [ ! -z ${valitem+x} ]; then
                 printV "The AprilTags service is offline and the lockfile is not there."
             else
                 printV "The lockfile is missing and at least one of the services is running."
-                touch /apps/AprilTags/servicerunning
+                touch /opt/AprilTags/servicerunning
                 if [ $? -ne 0 ]; then
                     echo "lockfile=add;running=true;"
                     printV "The lockfile couldn't be created. please make it, or stop the processes!"
@@ -127,28 +127,28 @@ elif [ $update == "t" ]; then
     # disable the service to make sure stuff is ok
     systemctl stop AprilTagsPipeline.service
     # just as a check, make sure that the lockfile is also gone
-    rm /apps/AprilTags/servicerunning
+    rm /opt/AprilTags/servicerunning
 
     # make sure that the dirs exist. why did I not do this before
-    if [ ! -d /apps/AprilTags/Backend ]; then
-    	mkdir /apps/AprilTags/Backend
+    if [ ! -d /opt/AprilTags/Backend ]; then
+    	mkdir /opt/AprilTags/Backend
     fi
     
     printV "copying backend..."
-    cp -R build/* /apps/AprilTags/Backend/
+    cp -R build/* /opt/AprilTags/Backend/
     
     printV "copying data..."
     # remove the existing data dir if it exists then replace it
-    if [ -d /apps/AprilTags/data ]; then
-    	rm -rf /apps/AprilTags/data
+    if [ -d /opt/AprilTags/data ]; then
+    	rm -rf /opt/AprilTags/data
     fi
     if [ -d data ]; then
-    	cp -R data/ /apps/AprilTags/data/
+    	cp -R data/ /opt/AprilTags/data/
     fi
     
     printV "copying public server files..."
     if [ -d public ]; then
-        cp -R public/ /apps/AprilTags/public
+        cp -R public/ /opt/AprilTags/public
     fi
     
     printV "The files were sucessfully coppied"

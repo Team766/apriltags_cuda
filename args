@@ -1,5 +1,0 @@
-# Please be careful editing this file!
-backend="-camera_idx 0 -cal_file /apps/AprilTags/data/calibrationmatrix.json"
-fontend=""
-# manager
-autormlockfile="true"

@@ -28,11 +28,11 @@ elif [[ $1 == "camIDs" ]]; then
     # run the go file in the most efficent way possible
     arch=$(uname -m)
     if [[ -f "scanner_${arch}" ]]; then
-        ret=$("./scanner_${arch}")
+        ret=$("./AprilTags_scanner_${arch}")
     else
     	if [[ $arch == "x86_64" ]]; then
     	    # x86 can run aarch64 binaries for some reason, so do that
-    	    ret=$("./scanner_aarch64")
+    	    ret=$("./AprilTags_scanner_aarch64")
     	    
     	else
             echoerr "running go file directly"
@@ -53,7 +53,7 @@ elif [[ $1 == "camIDs" ]]; then
     echo "${ret:1: -1}"
     exit 0
 elif [[ $1 == "getCamLoc" ]]; then
-    camlocfile="/apps/AprilTags/data/cameralocations"
+    camlocfile="/opt/AprilTags/data/camlocations"
     camid=$2
     if ! [[ -f camlocfile ]]; then
         echo "cam locations file not found."
@@ -70,4 +70,20 @@ elif [[ $1 == "getCamLoc" ]]; then
     done
     echo "id not found"
     exit 1 # again, same code
+elif [[ $1 == "killHandler" ]]; then
+    if [[ "$2" =~ ^-?[0-9]+$ ]]; then # regex to find int
+        # assume its a PID that belongs to ws_server if running
+        if ps -p $1 > /dev/null
+        then
+            killpid=$2
+        fi
+    fi
+
+    # stop if unset
+    if [ -z ${killpid+x} ]; then exit 1; fi
+
+    # catch: kill -9
+    trap 'kill -9 ${killpid}' INT
+
+    kill -2 ${killpid}
 fi
