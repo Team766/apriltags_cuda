@@ -39,6 +39,9 @@ extern "C" {
 #include "common/zarray.h"
 }
 
+// todo: make this work
+//#define TAGSIZE = 0.1143 // tag size, in meters
+
 using json = nlohmann::json;
 
 DEFINE_int32(camera_idx, 0, "Camera index");
@@ -49,6 +52,7 @@ DEFINE_bool(rotate_horizontal, false,
             "Rotates image by 90 degrees prior to detecting apriltags");
 DEFINE_int32(port, -1, "Server port to run webserver");
 DEFINE_string(camera_name, "", "name of camera as setup on java side");
+DEFINE_string(position_file, "", "path name to the position file");
 
 enum ExposureMode { AUTO = 0, MANUAL = 1 };
 
@@ -125,11 +129,14 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
     });
   }
 
-  bool parsecal_file(const std::string& cal_filepath,
+  bool parsecal_file(const std::string& cal_filepath, // why specify this if it is not once touched?
+                     const std::string& position_filepath,
                      frc971::apriltag::CameraMatrix* cam,
                      frc971::apriltag::DistCoeffs* dist) {
-    std::ifstream f(FLAGS_cal_file);
+    std::ifstream f(cal_filepath);
     json data = json::parse(f);
+    std::ifstream f2(position_filepath);
+    json data2 = json::parse(f2);
 
     // Ensure the keys that we are expecting to find are actually
     // present in the file.
@@ -141,12 +148,12 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
       LOG(ERROR) << "key \"disto\" not found in calibration file.";
       return false;
     }
-    if(!data.contains("rotation")){ 
-      LOG(ERROR) << "key \"rotation\" not found in calibration file.";
+    if(!data2.contains("rotation")){ 
+      LOG(ERROR) << "key \"rotation\" not found in location file.";
       return false;
     }
-    if(!data.contains("offset")){
-      LOG(ERROR) << "key \"offset\" not found in calibration file.";
+    if(!data2.contains("offset")){
+      LOG(ERROR) << "key \"offset\" not found in location file.";
       return false;
     }
 
@@ -171,13 +178,13 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
     int c = 0;
     for(int i = 0; i < 3; i++){
       for(int j = 0; j < 3; j++){
-        rotationCoefficents[c] = data["rotation"][i][j];
+        rotationCoefficents[c] = data2["rotation"][i][j];
         c += 1;
       }
     }
     double offsetCoeficients[3] = {0,0,0};
     for(int i = 0; i < 2; i++){
-      offsetCoeficients[i] = data["offset"][i];
+      offsetCoeficients[i] = data2["offset"][i];
     }
 
     rotationCoefficents_ = (cv::Mat_<double>(3, 3) << 
@@ -214,10 +221,11 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
     cv::flip(bgr_img, *output_img, -1);
   }
   void startReadAndSendThread(const int camera_idx, const std::string& cal_file,
+                              const std::string& position_file,
                               const bool rotate_vertical,
                               const bool rotate_horizontal) {
     read_thread_ = std::thread(&AprilTagHandler::readAndSend, this, camera_idx,
-                               cal_file, rotate_vertical, rotate_horizontal);
+                               cal_file, position_file, rotate_vertical, rotate_horizontal);
   }
 
   void joinReadAndSendThread() {
@@ -244,6 +252,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
   }
 
   void readAndSend(const int camera_idx, const std::string& cal_file,
+                   const std::string& position_file,
                    const bool rotate_vertical, const bool rotate_horizontal) {
     std::cout << "Enabling video capture" << std::endl;
     bool camera_started = false;
@@ -296,8 +305,9 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
     // Read Camera Matrix and Distortion Coeffs from file.
     frc971::apriltag::CameraMatrix cam;
     frc971::apriltag::DistCoeffs dist;
-    if (!parsecal_file(cal_file, &cam, &dist)) {
+    if (!parsecal_file(cal_file, position_file, &cam, &dist)) {
       std::cout << "Unable to read parameters from cal file " << cal_file
+                << "or parameters from location file " << position_file
                 << std::endl;
       return;
     }
@@ -315,8 +325,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
 
     // Setup the detection info struct for use down below.
     apriltag_detection_info_t info;
-    info.tagsize =
-        0.175;  // Measured in meters, with a ruler, for tag family 36h11
+    info.tagsize = 0.1143;  // Measured in meters, with a ruler, for tag family 36h11
     info.fx = cam.fx;
     info.fy = cam.fy;
     info.cx = cam.cx;
@@ -422,8 +431,6 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
             cv::Vec3d aprilTagInCameraFrame(pose.t->data[0], pose.t->data[1], pose.t->data[2]);
             cv::Mat aprilTagInCameraFrameAsMat = cv::Mat(aprilTagInCameraFrame);
             cv::Mat aprilTagInRobotFrame = rotationCoefficents_ * aprilTagInCameraFrameAsMat + offsetCoefficents_;
-            //TODO: Unimplemented translation code (Crystal to add)
-
             
             record["translation"] = {aprilTagInRobotFrame.at<double>(0), aprilTagInRobotFrame.at<double>(1), aprilTagInRobotFrame.at<double>(2)};
 
@@ -496,19 +503,25 @@ int main(int argc, char* argv[]) {
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  if (FLAGS_cal_file.empty()) {
+  if (FLAGS_cal_file.empty() || FLAGS_position_file.empty()) {
     LOG(ERROR) << "Usage: ws_server -camera_idx <index> -cal_file <path to cal "
-                  "file -port <webserver port>";
+                  "file> -position_file <path to position file> -port <webserver "
+                  "port>";
   }
 
   if (FLAGS_camera_name.empty()) {
     LOG(ERROR) << "camera_name is required";
     return 1;
   }
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  //gflags::ParseCommandLineFlags(&argc, &argv, true); // this is done once before
 
   if (!std::filesystem::exists(FLAGS_cal_file)) {
     LOG(ERROR) << "calibration file does not exist: " << FLAGS_cal_file;
+    return 1;
+  }
+  
+  if (!std::filesystem::exists(FLAGS_position_file)) {
+    LOG(ERROR) << "position files does not exist: " << FLAGS_position_file;
     return 1;
   }
 
@@ -520,13 +533,14 @@ int main(int argc, char* argv[]) {
     server->addWebSocketHandler("/ws", handler);
 
     handler->startReadAndSendThread(FLAGS_camera_idx, FLAGS_cal_file,
+                                    FLAGS_position_file,
                                     FLAGS_rotate_vertical,
                                     FLAGS_rotate_horizontal);
-    int port = 8080;
+    int port; // why reassign it?
     if (FLAGS_port == -1) {
       // User did not specify the port so make it relative to
       // the camera idx to support multiple cameras seamlessly.
-      port += FLAGS_camera_idx;
+      port = 8080 + FLAGS_camera_idx;
 
     } else {
       // User asked for a specific port so we'll serve from that.

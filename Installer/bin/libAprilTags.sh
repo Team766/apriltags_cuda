@@ -5,7 +5,7 @@
 # get proc pid (0 notfound/error, else is the pid)
 function getProcPID() {
     # NOTE: this returns the OLDEST PID
-    paths=$(ps -aux | grep $1 | grep -v 'grep' | grep -v 'libAprilTags.sh pid') #last section removes command syntax for this command
+    paths=$(ps -aux | grep $1 | grep -v 'grep' | grep -v 'libAprilTags pid') #last section removes command syntax for this command
     # the quotes preserve linebreaks
     # rewriting the for loop, since its done in a subshell and causes issues when written normally
     while read line; do
@@ -24,20 +24,10 @@ echoerr() { echo "$@" 1>&2; } # bypass capture by var assigning because std::err
 if [[ $1 == "pid" ]]; then
     getProcPID $2
 elif [[ $1 == "camIDs" ]]; then
-    cd "${0%/*}"/camerascanner
-    # run the go file in the most efficent way possible
-    arch=$(uname -m)
-    if [[ -f "scanner_${arch}" ]]; then
-        ret=$("./scanner_${arch}")
+    if [[ -f /bin/AprilTags_camerascanner ]]; then
+        ret=$(AprilTags_camerascanner)
     else
-    	if [[ $arch == "x86_64" ]]; then
-    	    # x86 can run aarch64 binaries for some reason, so do that
-    	    ret=$("./scanner_aarch64")
-    	    
-    	else
-            echoerr "running go file directly"
-            ret=$(go run main)
-        fi
+        ret=$(go run /opt/AprilTags/bin/camerascanner/scanner.go)
     fi
     
     if [[ "${ret,,}" == *"err"* ]] || [[ "${ret,,}" == *"fault"* ]]; then
@@ -53,21 +43,46 @@ elif [[ $1 == "camIDs" ]]; then
     echo "${ret:1: -1}"
     exit 0
 elif [[ $1 == "getCamLoc" ]]; then
-    camlocfile="/apps/AprilTags/data/cameralocations"
+    camlocfile="/opt/AprilTags/data/camlocations"
     camid=$2
-    if ! [[ -f camlocfile ]]; then
+    if ! [[ -f $camlocfile ]]; then
         echo "cam locations file not found."
         exit 1 # maybe stop using the same number
     fi
     # must have the file, assume that the file is correct
     set -e # just in case
-    locfile=$(tail -n +1 camlocfile)
-    for line in locfile; do
-        if [[ "$2" == "${line[0]}" ]]; then
-            echo line[1]
-            exit 0
+    found=false
+    cat $camlocfile | while read line || [ -n "$line" ] ; do
+        lineparts=($line)
+        if [[ "$2" == "${lineparts[0]}" ]] && [[ "$2" != "id" ]]; then
+            echo ${lineparts[1]}
+            found=true
+            # exit does nothing
         fi
     done
-    echo "id not found"
+    if [[ found ]]; then
+        exit 0
+    fi
+    echoerr "id not found"
     exit 1 # again, same code
+elif [[ $1 == "killHandler" ]]; then
+    if [[ "$2" =~ ^-?[0-9]+$ ]]; then # regex to find int
+        # assume its a PID that belongs to ws_server if running
+        if ps -p $2 > /dev/null
+        then
+            killpid=$2
+        fi
+    fi
+
+    # stop if unset
+    if [ -z ${killpid+x} ]; then exit 1; fi
+
+    # catch: kill -9
+    trap 'kill -9 ${killpid}' INT
+
+    kill -2 ${killpid}
+    
+    while [ -d "/proc/$killpid" ]; do
+        sleep 0.1 $ wait $!
+    done
 fi

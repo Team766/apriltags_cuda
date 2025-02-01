@@ -16,47 +16,43 @@ else
 	exit 2
 fi
 
-# make sure the directories are present
-if [ ! -d /apps ]; then
-    mkdir /apps
-fi
-if [ ! -d /apps/bin ]; then
-    mkdir /apps/bin
-fi
-if [ ! -d /apps/AprilTags ]; then
-    mkdir /apps/AprilTags
+# make sure the /opt/AprilTags dir is present
+if [ ! -d /opt/AprilTags ]; then
+    mkdir -p /opt/AprilTags
 fi
 
-# clean out alll of the odd stuff that could be in the AprilTags dir
+# clean out all of the odd stuff that could be in the AprilTags dir
 if ! [[ $preserve == "t" ]]; then
-    rm -rf /apps/AprilTags/*
+    rm -rf /opt/AprilTags/*
+else
+    rm -rf /opt/AprilTags/bin /opt/AprilTags/AprilTagsManager.sh /opt/AprilTags/args /opt/AprilTags/uninstall.sh
 fi
 
-# again, just like with the uninstall, it should properly do the /apps/bin stuff based on what is here, but whatever works!
-if [ -f /apps/bin/AprilTags.sh ]; then
-	rm /apps/bin/AprilTags.sh
-fi
-if [ -f /apps/bin/libAprilTags.sh ]; then
-	rm /apps/bin/libAprilTags.sh
+# copy files into places
+cp -R AprilTags/* /opt/AprilTags
+cp -R bin/ /opt/AprilTags
+cp uninstall.sh /opt/AprilTags
+
+# Symlinks!!!
+ln -s /opt/AprilTags/bin/AprilTags.sh /bin/AprilTags
+ln -s /opt/AprilTags/bin/libAprilTags.sh /bin/libAprilTags
+arch=$(uname -m)
+if [[ -f "bin/camerascanner/scanner_${arch}" ]]; then
+    ln -s /opt/AprilTags/bin/camerascanner/"scanner_${arch}" /bin/AprilTags_camerascanner
+else
+    if [[ $arch == "x86_64" ]]; then
+    # x86 can run aarch64 binaries for some reason, so do that
+    ln -s /opt/AprilTags/bin/camerascanner/scanner_aarch64 /bin/AprilTags_camerascanner
+   fi
+   # if not, do nothing!
 fi
 
 # copy the service to the services, refresh, then enable it
 cp AprilTagsPipeline.service /etc/systemd/system
-sudo chmod 755 /etc/systemd/system/AprilTagsPipeline.service
+chmod 755 /etc/systemd/system/AprilTagsPipeline.service
 systemctl daemon-reload
-systemctl enable AprilTagsPipeline.service
+systemctl enable AprilTagsPipeline.service # not now, since files might not be there
 
-# add path modification in /etc/profile.d/ if not already there
-# why two? idk. it just apparently should have both?
-if [ ! -f /etc/profile.d/AddAppsToPaf.sh ]; then
-	cp AddAppsToPath.sh /etc/profile.d/AddAppsToPath.sh
-fi
-
-# now onto the AprilTags specific items
-cp -R AprilTags/ /apps/
-cp -R  bin/* /apps/bin/
-
-echo "The AprilTags service has been installed and enabled. Run 'AprilTags.sh --update' in the Cuda project root to sync it to be run."
-echo "HINT: program not found error? run 'export PATH=\$PATH:/apps/bin' in your session"
-echo "HINT: if sudo will not work, try sudo -i or use the sudo with the binary absolute path (which is required for some commands)"
+echo "The AprilTags service has been installed and enabled. Run 'AprilTags --update' in the Cuda project root to sync it to be run."
+echo "No hints! The code should work just fine if you run sudo on the binaries as needed."
 # adding the commands in the AddAppstoPaf might help to fix that issue
