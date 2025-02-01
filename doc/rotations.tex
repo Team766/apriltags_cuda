@@ -464,7 +464,7 @@ $Z_R$ points upwards and $X_R$ points forwards on the robot.
 
 The camera coordinate frame follows the coordinate frame of OpenCV, such that $Z_C$ points
 outwards from the center of the camera, $X_C$ points to the right, and $Y_C$ points down.  The
-camera coordinate frame is shwon in figure \ref{fig:pinhole_camera_model}.
+camera coordinate frame is shown in figure \ref{fig:pinhole_camera_model}.
 
 \begin{figure}[h!]
     \centering
@@ -472,6 +472,8 @@ camera coordinate frame is shwon in figure \ref{fig:pinhole_camera_model}.
     \caption{The camera coordinate frame.}
     \label{fig:pinhole_camera_model}
 \end{figure}
+
+\subsection{Front Mounted Camera Transformation}
 
 The camera is placed on a location on the robot such that the camera $Z_C$ points towards
 the front of the robot.  The camera is looking at something of interest, such as the apriltag,
@@ -506,23 +508,22 @@ as follows:
     \end{bmatrix}
 \end{equation}
 
-Generally this can be derived fairly accurately from CAD Drawings.  The rotation matrix may also
-be derived from CAD drawings, or it can be measured directly.  We will work out how to 
-measure the rotation matrix in the next section.  In this section let's work out how to 
-build a rotation matrix from a CAD drawing.
+Generally this can be derived fairly accurately from CAD Drawings.  The rotation be measured.
+We will work out how to measure the rotation matrix (and the offset) at a later time.  In this 
+section let's work out how to build a rotation matrix from a CAD drawing.
 
 The first thing to notice is that the camera coordinate frame is rotated from the robot
 frame.  The $Z_C$ axis aligns with the robot $X_R$ axis.  So we need a rotation
 about the Y axis by 90 degrees to get those aligned. After that we can rotate
 by -90 degrees about the X axis to get the camera coordinate frame aligned with
 the robot coordinate frame.  That is the rotation matrix we need to build.
-This is shown in figure \ref{fig:rotations}.
+This is shown in figure \ref{fig:rotations1}.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.5]{figures/rotations.png}
+    \includegraphics[scale=0.5]{figures/rotations1.png}
     \caption{Two rotations to align the camera coordinate frame with the robot coordinate frame.}
-    \label{fig:rotations}
+    \label{fig:rotations1}
 \end{figure}
 
 Putting this together we would get the following rotation matrix:
@@ -591,6 +592,91 @@ or
     \end{pmatrix}
 \end{equation}
 
+\subsection{Rear Mounted Camera Transformation}
+
+The camera is placed on a location on the robot such that the camera $Z_C$ points towards
+the back of the robot.  The camera is looking at something of interest, such as the apriltag,
+which is placed somewhere in the camera's field of view.
+
+
+The first thing to notice is that the camera coordinate frame is rotated from the robot
+frame.  The $Z_C$ axis aligns with the robot negative $X_R$ axis.  So we need a rotation
+about the Y axis by -90 degrees, followed by a rotation by -90 degrees about the X axis to 
+get the camera coordinate frame aligned with the robot coordinate frame.  That is the rotation 
+matrix we need to build. This is shown in figure \ref{fig:rotations2}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.5]{figures/rotations2.png}
+    \caption{Two rotations to align the camera coordinate frame with the robot coordinate frame.}
+    \label{fig:rotations2}
+\end{figure}
+
+Putting this together we would get the following rotation matrix:
+
+\begin{equation}
+    R_x(-90) * R_y(-90) * \vec{v}
+\end{equation}
+
+which expands to:
+
+\begin{equation}
+    \begin{pmatrix}
+        1 & 0 & 0 \\
+        0 & cos(\alpha) & -sin(\alpha) \\
+        0 & sin(\alpha) & cos(\alpha)
+    \end{pmatrix}
+    *
+    \begin{pmatrix}
+        cos(\gamma) & 0 & sin(\gamma) \\
+        0 & 1 & 0 \\
+        -sin(\gamma) & 0 & cos(\gamma)
+    \end{pmatrix}
+    * 
+    \begin{pmatrix}
+        v_x \\
+        v_y \\
+        v_z
+    \end{pmatrix}
+\end{equation}
+
+where $\gamma$ is the angle of rotation about the Y axis equal to -90 degrees ($-\pi/2$ radians), 
+and $\alpha$ is the angle of rotation about the X axis equal to -90 degrees ($-\pi/2$ radians).
+
+Putting this all together and including the translation vector we get:
+
+\begin{equation}
+    \vec{v_{robot-frame}} = R * \vec{v_{camera-frame}} + \vec{T}
+\end{equation}
+
+or
+
+\begin{equation}
+    \vec{v_{robot-frame}} = 
+    \begin{pmatrix}
+        1 & 0 & 0 \\
+        0 & cos(\alpha) & -sin(\alpha) \\
+        0 & sin(\alpha) & cos(\alpha)
+    \end{pmatrix}
+    *
+    \begin{pmatrix}
+        cos(\gamma) & 0 & sin(\gamma) \\
+        0 & 1 & 0 \\
+        -sin(\gamma) & 0 & cos(\gamma)
+    \end{pmatrix}
+    * 
+    \begin{pmatrix}
+        v_x \\
+        v_y \\
+        v_z
+    \end{pmatrix}
+    +
+    \begin{pmatrix}
+        t_x \\
+        t_y \\        
+        t_z
+    \end{pmatrix}
+\end{equation}
 
 %-----------------------------------------------------------------------
 % 7. CONCLUSION
@@ -598,8 +684,8 @@ or
 \section{Conclusion}
 \label{sec:conclusion}
 
-Summarize key points. You may also mention limitations and open problems or suggest further reading.
-
+Hopefully this tutorial on coordinate transformations has been useful in understanding
+how to convert vectors from one coordinate frame to another.
 %-----------------------------------------------------------------------
 % REFERENCES
 %-----------------------------------------------------------------------
