@@ -54,7 +54,7 @@ elif [[ $1 == "getCamLoc" ]]; then
     found=false
     cat $camlocfile | while read line || [ -n "$line" ] ; do
         lineparts=($line)
-        if [[ "$2" == "${lineparts[0]}" ]] && [[ "$2" != "id" ]]; then
+        if [[ "$2" == "${lineparts[0]}" ]] && [[ "$2" != "id" ]] && [[ "$2" != "robot" ]]; then
             echo ${lineparts[1]}
             found=true
             # exit does nothing
@@ -85,4 +85,32 @@ elif [[ $1 == "killHandler" ]]; then
     while [ -d "/proc/$killpid" ]; do
         sleep 0.1 $ wait $!
     done
+elif [[ $1 == "getRobot" ]]; then
+    if [[ $2 == "ignoreNoRobot" ]]; then
+        ignoreMissingRobotArg=true
+    fi
+    camlocfile="/opt/AprilTags/data/camlocations"
+    if ! [[ -f $camlocfile ]]; then
+        echo "cam locations file not found."
+        exit 1 # maybe stop using the same number
+    fi
+    # must have the file, assume that the file is correct
+    set -e # just in case
+    found=false
+    cat $camlocfile | while read line || [ -n "$line" ] ; do
+        lineparts=($line)
+        if [[ "${lineparts[0]}" == "robot" ]]; then
+            echo ${lineparts[1]}
+            found=true
+            # exit does nothing
+        fi
+    done
+    if [[ found ]]; then
+        exit 0
+    elif [[ ignoreMissingRobotArg ]]; then
+        echo "cam"
+        exit 0
+    fi
+    echoerr "id not found"
+    exit 1 # again, same code
 fi
