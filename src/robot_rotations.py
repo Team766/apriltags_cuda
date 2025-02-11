@@ -67,11 +67,14 @@ if __name__ == "__main__":
 
     # ------------------------------------------------------------
     # LEFT FRONT CAMERA
-    # We want the camera Z-axis to map to robot +X-axis.
-    # => rotate about Y by +90 degrees does that:
+    # We want the camera Z-axis to map to robot -X-axis.
     LF_roll = -90
-    LF_pitch = 90  # about Y
+    LF_pitch = -90 + 24.784
     LF_yaw = 0
+
+    # LF_roll = -90
+    # LF_pitch = 90  # about Y
+    # LF_yaw = 0
     R_left_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw)
 
     # ------------------------------------------------------------
@@ -79,24 +82,36 @@ if __name__ == "__main__":
     # Likely the same if it also points forward, or you might tweak
     # roll/yaw if physically mounted differently.
     RF_roll = -90
-    RF_pitch = 90
+    RF_pitch = -90 + 24.784
     RF_yaw = 0
+
+    # RF_roll = -90
+    # RF_pitch = 90
+    # RF_yaw = 0
     R_right_front = compose_rotations_xyz(RF_roll, RF_pitch, RF_yaw)
 
     # ------------------------------------------------------------
     # LEFT BACK CAMERA
-    # We want the camera Z-axis to map to robot -X-axis => rotating by -90 about Y.
+    # We want the camera Z-axis to map to robot +X-axis
+    # LF_roll = -90
+    # LF_pitch = 90  # about Y
+    # LF_yaw = 0
+
     LB_roll = -90
-    LB_pitch = -90
-    LB_yaw = 0
+    LB_pitch = 90
+    LB_yaw = 45
     R_left_back = compose_rotations_xyz(LB_roll, LB_pitch, LB_yaw)
 
     # ------------------------------------------------------------
     # RIGHT BACK CAMERA
     # Also mapping camera Z to -X. Possibly add slight tweaks for real hardware.
+    # RB_roll = -90
+    # RB_pitch = -90
+    # RB_yaw = 0
+
     RB_roll = -90
-    RB_pitch = -90
-    RB_yaw = 0
+    RB_pitch = 90
+    RB_yaw = -45
     R_right_back = compose_rotations_xyz(RB_roll, RB_pitch, RB_yaw)
 
     rotation_data = {
