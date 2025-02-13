@@ -13,7 +13,7 @@ function help() {
     exit 0
 }
 
-VERSION="1.4 Better Locations (Grape Juice)" # I think having codenames for version could be fun
+VERSION="1.5 Better Robot Location Data (Orange Juice)" # This is still arbitrary
 
 if [ $# -eq 0 ]; then
     # print help
