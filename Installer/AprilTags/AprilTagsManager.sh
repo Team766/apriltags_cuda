@@ -59,6 +59,12 @@ if [[ $1 == "start" ]]; then
     
     cd /opt/AprilTags # seasocks depends on this
     
+    robot=`libAprilTags getRobot ignoreNoRobot`
+    if [[ $? -ne 0 ]]; then
+    	echo "Finding the robot name errored out.. Try configuring it."
+    	exit 6
+    fi
+    
     # iterate
     for cam in $cams; do
         # set items off of the output cam
@@ -71,9 +77,9 @@ if [[ $1 == "start" ]]; then
             exit 6
         fi
         
-        camFilePlace="/opt/AprilTags/data/camlocs/cam-${camLoc}-offset.json"
+        camFilePlace="/opt/AprilTags/data/camlocs/${robot}-${camLoc}-offset.json"
         if ! [[ -f $camFilePlace ]]; then
-            echo "FAILED TO FIND CAMERA OFFSET FILE FOR CAM ${camID} with location ${camLoc} (file missing ${camFilePlace}"
+            echo "FAILED TO FIND CAMERA OFFSET FILE FOR CAM ${camID} with location ${camLoc} on robot ${robot} (file missing ${camFilePlace}"
             exit 6
         fi
         

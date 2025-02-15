@@ -1,6 +1,7 @@
 [Unit]
-Description=Start/teardown apriltags stuff
-#After=network.target
+Description=AprilTags Pipeline
+After=network-online.target network.target
+After=systemd-udevd-trigger.service systemd-udevd.service
 
 [Service]
 Type=oneshot
