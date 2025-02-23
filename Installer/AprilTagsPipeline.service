@@ -7,7 +7,7 @@ After=systemd-udevd-trigger.service systemd-udevd.service
 Type=oneshot
 ExecStart=/opt/AprilTags/AprilTagsManager.sh start
 RemainAfterExit=true
-ExecStop=/opt/AprilTags/ApriltagsManager.sh stop
+ExecStop=/opt/AprilTags/AprilTagsManager.sh stop
 StandardOutput=journal
 #Restart=always
 
