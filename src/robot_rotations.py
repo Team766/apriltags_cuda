@@ -35,6 +35,11 @@ def rotation_z(angle_degrees):
     return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]], dtype=float)
 
 
+def camera_to_robot():
+    # Converts camera coords to robot frame.
+    return compose_rotations_xyz(-90, 90, 0)
+
+
 def compose_rotations_xyz(roll_deg, pitch_deg, yaw_deg):
     """
     Compose rotations in the order Rx(roll) * Ry(pitch) * Rz(yaw).
@@ -57,62 +62,62 @@ if __name__ == "__main__":
         Y down (rows).
 
     Goal:
-      - Left/Right front cameras => camera Z aligns with robot +X.
-      - Left/Right back cameras  => camera Z aligns with robot -X.
+      - Left/Right front cameras => on Rev A these point towards robot -X and slightly up
+      - Left/Right back cameras  => on Rev A these point forwards and are offset by Z
 
-    That means:
-      [0, 0, 1]_cam -> [+1, 0, 0]_robot  (front)
-      [0, 0, 1]_cam -> [-1, 0, 0]_robot  (back)
     """
 
     # ------------------------------------------------------------
     # LEFT FRONT CAMERA
-    # We want the camera Z-axis to map to robot -X-axis.
-    LF_roll = -90
-    LF_pitch = -90 + 24.784
+    # Camera is pointed backwards towards -X and up slightly
+    LF_roll = 0.0
+    LF_pitch = 25
     LF_yaw = 0
 
-    # LF_roll = -90
-    # LF_pitch = 90  # about Y
-    # LF_yaw = 0
-    R_left_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw)
+    R_left_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
+    expected = np.array([[0, -0.422, 0.906], [-1, 0, 0], [0, -0.906, -0.422]])
+    assert np.allclose(
+        R_left_front, expected, atol=1e-3
+    ), "Error: R_left_front differs from expected"
 
     # ------------------------------------------------------------
     # RIGHT FRONT CAMERA
-    # Likely the same if it also points forward, or you might tweak
-    # roll/yaw if physically mounted differently.
-    RF_roll = -90
-    RF_pitch = -90 + 24.784
-    RF_yaw = 0
+    # Same as left front camera
+    LF_roll = 0.0
+    LF_pitch = 25
+    LF_yaw = 0
 
-    # RF_roll = -90
-    # RF_pitch = 90
-    # RF_yaw = 0
-    R_right_front = compose_rotations_xyz(RF_roll, RF_pitch, RF_yaw)
+    R_right_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
+    expected = np.array([[0, -0.422, 0.906], [-1, 0, 0], [0, -0.906, -0.422]])
+    assert np.allclose(
+        R_right_front, expected, atol=1e-3
+    ), "Error: R_right_front differs from expected"
 
     # ------------------------------------------------------------
     # LEFT BACK CAMERA
-    # We want the camera Z-axis to map to robot +X-axis
-    # LF_roll = -90
-    # LF_pitch = 90  # about Y
-    # LF_yaw = 0
-
-    LB_roll = -90
-    LB_pitch = 90
+    # Camera points forward but yaws 45 degrees
+    LB_roll = 0
+    LB_pitch = 0
     LB_yaw = 45
-    R_left_back = compose_rotations_xyz(LB_roll, LB_pitch, LB_yaw)
+
+    R_left_back = compose_rotations_xyz(LB_roll, LB_pitch, LB_yaw) @ camera_to_robot()
+    expected = np.array([[0.707, 0, 0.707], [-0.707, 0, 0.707], [0, -1, 0]])
+    assert np.allclose(
+        R_left_back, expected, atol=1e-3
+    ), "Error: R_left_back differs from expected"
 
     # ------------------------------------------------------------
     # RIGHT BACK CAMERA
-    # Also mapping camera Z to -X. Possibly add slight tweaks for real hardware.
-    # RB_roll = -90
-    # RB_pitch = -90
-    # RB_yaw = 0
-
-    RB_roll = -90
-    RB_pitch = 90
+    # Same as left back camera but yaws -45 degrees.
+    RB_roll = 0
+    RB_pitch = 0
     RB_yaw = -45
-    R_right_back = compose_rotations_xyz(RB_roll, RB_pitch, RB_yaw)
+
+    R_right_back = compose_rotations_xyz(RB_roll, RB_pitch, RB_yaw) @ camera_to_robot()
+    expected = np.array([[-0.707, 0, 0.707], [-0.707, 0, -0.707], [0, -1, 0]])
+    assert np.allclose(
+        R_right_back, expected, atol=1e-3
+    ), "Error: R_right_back differs from expected"
 
     rotation_data = {
         "left_front": np.round(R_left_front, 6).tolist(),
