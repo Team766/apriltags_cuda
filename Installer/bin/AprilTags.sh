@@ -129,6 +129,13 @@ elif [ $update == "t" ]; then
         printV "HINT: This can be an issue using sudo -i, meaning you need to use the script absolute path without the -i in sudo"
         exit 21
     fi
+    
+    # backup the running config
+    camlocsconfig="/opt/AprilTags/data/camlocations"
+    if [[ -f $camlocsconfig ]]; then
+        printv "Found running config, moving it off to preserve"
+        cp $camlocsconfig /tmp/ApriltagsCamlocs
+    fi
 
     # disable the service to make sure stuff is ok
     systemctl stop AprilTagsPipeline.service
@@ -157,7 +164,15 @@ elif [ $update == "t" ]; then
         cp -R public/ /opt/AprilTags/public
     fi
     
-    printV "The files were sucessfully coppied"
+    # move the config file back if it is there
+    if [[ -f /tmp/ApriltagsCamlocs ]]; then
+        # copy the config back
+        printv "putting the config back"
+        cp /tmp/ApriltagsCamlocs $camlocsconfig
+        rm /tmp/ApriltagsCamlocs
+    fi
+    
+    printV "The files were sucessfully copied"
 
     # restart the service
     systemctl start AprilTagsPipeline.service
