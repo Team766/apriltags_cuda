@@ -27,8 +27,6 @@ install_llvm() {
 	sudo ./llvm.sh 17
 }
 
-export DEBIAN_FRONTEND=noninteractive
-
 sudo apt update -y
 sudo apt install -y wget build-essential cmake python3-dev python3-numpy libprotobuf-dev protobuf-compiler
 sudo apt install -y libgoogle-glog-dev libgtest-dev libssh-dev libxrandr-dev libxinerama-dev libstdc++-12-dev
