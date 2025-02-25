@@ -32,7 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 sudo apt update -y
 sudo apt install -y wget build-essential cmake python3-dev python3-numpy libprotobuf-dev protobuf-compiler
 sudo apt install -y libgoogle-glog-dev libgtest-dev libssh-dev libxrandr-dev libxinerama-dev libstdc++-12-dev
-sudo apt install -y golang
+sudo apt install -y golang ntp
 
 # Check if clang-17 is installed.
 if ! dpkg -l | grep clang-17; then
@@ -44,6 +44,35 @@ if dpkg -l | grep -q cuda-toolkit-11-8; then
 	echo "cuda-toolkit 11-8 is installed."
 	exit 0
 fi
+
+# Setup static IP for the device
+echo "Please enter the IP that this device will be assigned in form of *.*.*.*/*:"
+read IP
+echo "network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    enp3s0:
+      addresses:
+        - $IP" > /etc/netplan/staticip.yaml
+netplan apply
+
+# Set up NTP on device
+echo "Do you want to set up NTP to point to a server? (y/N)"
+read NTP
+case $NTP in
+    yesY)
+        echo "IP of server you want to sync with (in form *.*.*.*): "
+	read IP
+	rm /etc/ntp.conf
+ 	echo "tos maxclock 8
+	pool $IP iburst" > /etc/ntp.conf
+ 	;;
+    *)
+    	echo "Not setting up NTP to point to a server"
+ 	;;
+esac
+  	
 
 arch=$(uname -m)
 case $arch in
