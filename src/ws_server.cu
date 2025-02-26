@@ -443,7 +443,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
             cv::Mat aprilTagInCameraFrameAsMat = cv::Mat(aprilTagInCameraFrame);
             cv::Mat aprilTagInRobotFrame;
             if(developer_mode_){
-              aprilTagInRobotFrame = rotationCoefficentsDevMode_ * aprilTagInCameraFrameAsMat + offsetCoeficients_;
+              aprilTagInRobotFrame = rotationCoefficentsDevMode_ * aprilTagInCameraFrameAsMat + offsetCoefficents_;
             } else {
               aprilTagInRobotFrame = rotationCoefficents_ * aprilTagInCameraFrameAsMat + offsetCoefficents_;
             }
