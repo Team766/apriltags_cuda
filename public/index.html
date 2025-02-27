@@ -145,6 +145,15 @@
     </div>
 
     <div class="container">
+        <h2>Offset Matrix</h2>
+        <input type="number" id="offset_x" value="0">
+        <input type="number" id="offset_y" value="0">
+        <input type="number" id="offset_z" value="0">
+
+        <button id="send_offset">Send Offset</button>
+    </div>
+
+    <div class="container">
         <div class="image-container">
             <img id="apriltag-image" alt="AprilTag Detection">
         </div>
@@ -313,6 +322,15 @@
                 document.getElementById('m22').value
             ].map(Number);
             sendControl('rotation_matrix', matrix);
+        };
+
+        document.getElementById('send_offset').onclick = function () {
+            const offset = [
+                document.getElementById('offset_x').value,
+                document.getElementById('offset_y').value,
+                document.getElementById('offset_z').value
+            ].map(Number);
+            sendControl('offset_vector', offset);
         };
 
         // Initial state
