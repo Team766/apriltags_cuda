@@ -108,11 +108,51 @@
             gap: 10px;
             font-size: 0.9em;
         }
+        .matrix-container {
+            margin-top: 20px;
+        }
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            gap: 5px;
+        }
+        .matrix input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <h1>AprilTag Detection with Controls and Pose Data</h1>
+    <button id="developer_mode">Developer Mode</button>
+    
+    <div class="matrix-container">
+        <h2>Rotation Matrix</h2>
+        <div class="matrix">
+            <input type="number" id="m00" value="0">
+            <input type="number" id="m01" value="1">
+            <input type="number" id="m02" value="2">
+            <input type="number" id="m10" value="3">
+            <input type="number" id="m11" value="4">
+            <input type="number" id="m12" value="5">
+            <input type="number" id="m20" value="6">
+            <input type="number" id="m21" value="7">
+            <input type="number" id="m22" value="8">
+        </div>
+        <button id="send_matrix">Send Rotation Matrix</button>
+    </div>
+
+    <div class="container">
+        <h2>Offset Matrix</h2>
+        <input type="number" id="offset_x" value="0">
+        <input type="number" id="offset_y" value="0">
+        <input type="number" id="offset_z" value="0">
+
+        <button id="send_offset">Send Offset</button>
+    </div>
+
     <div class="container">
         <div class="image-container">
             <img id="apriltag-image" alt="AprilTag Detection">
@@ -263,6 +303,34 @@
         };
         document.getElementById('rotate-image-horizontally').onchange = function() {
             sendControl('flipHorizontal', this.checked);
+        };
+
+        document.getElementById('developer_mode').onchange = function () {
+            sendControl('developer_mode', this.checked);
+        };
+
+        document.getElementById('send_matrix').onclick = function () {
+            const matrix = [
+                document.getElementById('m00').value,
+                document.getElementById('m01').value,
+                document.getElementById('m02').value,
+                document.getElementById('m10').value,
+                document.getElementById('m11').value,
+                document.getElementById('m12').value,
+                document.getElementById('m20').value,
+                document.getElementById('m21').value,
+                document.getElementById('m22').value
+            ].map(Number);
+            sendControl('rotation_matrix', matrix);
+        };
+
+        document.getElementById('send_offset').onclick = function () {
+            const offset = [
+                document.getElementById('offset_x').value,
+                document.getElementById('offset_y').value,
+                document.getElementById('offset_z').value
+            ].map(Number);
+            sendControl('offset_vector', offset);
         };
 
         // Initial state
