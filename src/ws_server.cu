@@ -108,7 +108,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
       }
       if(j["type"] == "offset_vector") {
         std::vector<double> offsetVector = j["value"];
-        offsetCoefficentsFromDevMode_ = cv::Vec3d(offsetVector[0], offsetVector[1], offsetVector[2]);
+        offsetCoefficentsFromDevMode_ = (cv::Mat_<double> (3, 1) << offsetVector[0], offsetVector[1], offsetVector[2]);
       }
 
     } catch (const json::parse_error& e) {
@@ -517,7 +517,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
   std::atomic<bool> developer_mode_{false};
   std::thread read_thread_;
   cv::Mat rotationCoefficentsDevMode_;
-  cv::Vec3d offsetCoefficentsFromDevMode_;
+  cv::Mat offsetCoefficentsFromDevMode_;
 };
 
 int main(int argc, char* argv[]) {
