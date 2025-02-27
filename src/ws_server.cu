@@ -40,7 +40,7 @@ extern "C" {
 }
 
 // todo: make this work
-#define TAGSIZE 0.1143 // tag size, in meters
+#define TAGSIZE 0.1651 // tag size, in meters
 
 using json = nlohmann::json;
 
@@ -94,6 +94,21 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
       if (j["type"] == "flipHorizontal") {
         flipHorizontal_ = j["value"].get<bool>();
         settings_changed_ = true;
+      }
+      if(j["type"] == "developer_mode"){
+        developer_mode_ = j["value"].get<bool>();
+        settings_changed_ = true;
+      }
+      if(j["type"] == "rotation_matrix") {
+        std::vector<double> rotationMatrix = j["value"];
+        rotationCoefficentsDevMode_ = (cv::Mat_<double>(3, 3) << 
+                       rotationMatrix[0], rotationMatrix[1], rotationMatrix[2],
+                       rotationMatrix[3], rotationMatrix[4], rotationMatrix[5],
+                       rotationMatrix[6], rotationMatrix[7], rotationMatrix[8]);
+      }
+      if(j["type"] == "offset_vector") {
+        std::vector<double> offsetVector = j["value"];
+        offsetCoefficentsFromDevMode_ = (cv::Mat_<double> (3, 1) << offsetVector[0], offsetVector[1], offsetVector[2]);
       }
 
     } catch (const json::parse_error& e) {
@@ -430,7 +445,12 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
 
             cv::Vec3d aprilTagInCameraFrame(pose.t->data[0], pose.t->data[1], pose.t->data[2]);
             cv::Mat aprilTagInCameraFrameAsMat = cv::Mat(aprilTagInCameraFrame);
-            cv::Mat aprilTagInRobotFrame = rotationCoefficents_ * aprilTagInCameraFrameAsMat + offsetCoefficents_;
+            cv::Mat aprilTagInRobotFrame;
+            if(developer_mode_){
+              aprilTagInRobotFrame = rotationCoefficentsDevMode_ * aprilTagInCameraFrameAsMat + offsetCoefficentsFromDevMode_;
+            } else {
+              aprilTagInRobotFrame = rotationCoefficents_ * aprilTagInCameraFrameAsMat + offsetCoefficents_;
+            }
             
             record["translation"] = {aprilTagInRobotFrame.at<double>(0), aprilTagInRobotFrame.at<double>(1), aprilTagInRobotFrame.at<double>(2)};
 
@@ -494,7 +514,10 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
   std::atomic<bool> settings_changed_{false};
   std::atomic<bool> flipVertical_{false};
   std::atomic<bool> flipHorizontal_{false};
+  std::atomic<bool> developer_mode_{false};
   std::thread read_thread_;
+  cv::Mat rotationCoefficentsDevMode_;
+  cv::Mat offsetCoefficentsFromDevMode_;
 };
 
 int main(int argc, char* argv[]) {
