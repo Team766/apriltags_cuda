@@ -133,7 +133,7 @@ elif [ $update == "t" ]; then
     # backup the running config
     camlocsconfig="/opt/AprilTags/data/camlocations"
     if [[ -f $camlocsconfig ]]; then
-        printv "Found running config, moving it off to preserve"
+        printV "Found running config, moving it off to preserve"
         cp $camlocsconfig /tmp/ApriltagsCamlocs
     fi
 
@@ -167,7 +167,7 @@ elif [ $update == "t" ]; then
     # move the config file back if it is there
     if [[ -f /tmp/ApriltagsCamlocs ]]; then
         # copy the config back
-        printv "putting the config back"
+        printV "putting the config back"
         cp /tmp/ApriltagsCamlocs $camlocsconfig
         rm /tmp/ApriltagsCamlocs
     fi
