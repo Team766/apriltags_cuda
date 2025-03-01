@@ -61,6 +61,8 @@ case $setupIP in
 	;;
     *)
         echo "Not setting up device with a static IP."
+	;;
+esac
 
 # Set up NTP on device
 echo "Do you want to set up NTP to point to a server? (y/N)"
@@ -77,7 +79,6 @@ case $NTP in
     	echo "Not setting up NTP to point to a server"
  	;;
 esac
-  	
 
 arch=$(uname -m)
 case $arch in
@@ -86,9 +87,15 @@ case $arch in
         install_cuda_x86
         ;;
     aarch64)
-        echo "Installing cuda on jetson"
-        install_cuda_jetson
-        ;;
+        case $(cat /proc/cpuinfo) in
+	    *0xd42*)
+                echo "Installing cuda on jetson"
+                install_cuda_jetson
+                ;;    
+	    *)
+                echo "Device is not detected to be Jetson Orin Nano; Not installing CUDA."
+	        ;;
+            esac
     *)
         echo "Unknown architecture: $arch"
         # Handle unknown architecture here
