@@ -75,6 +75,9 @@ if [[ $1 == "start" ]]; then
         if [[ $? -ne 0 ]]; then
             echo "FAILED TO FIND CAMERA OFFSET ${camID}, EXITING..."
             exit 6
+        elif [[ $camLoc == "NOT-INSTALLED" ]]; then
+            echo "INSTALLED CAMERA ${camID} MARKED \"NOT INSTALLED\", EXITING..."
+            exit 7
         fi
         
         camFilePlace="/opt/AprilTags/data/camlocs/${robot}-${camLoc}-offset.json"

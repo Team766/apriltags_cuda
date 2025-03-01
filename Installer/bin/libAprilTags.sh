@@ -54,7 +54,8 @@ elif [[ $1 == "getCamLoc" ]]; then
     found=false
     cat $camlocfile | while read line || [ -n "$line" ] ; do
         lineparts=($line)
-        if [[ "$2" == "${lineparts[0]}" ]] && [[ "$2" != "id" ]] && [[ "$2" != "robot" ]]; then
+        if [[ "$2" == "${lineparts[0]}" ]] && [[ "$2" != "id" ]]; then
+            # do note, this will happily pass "NOT-INSTALLED" as its return value, the manager will die when it gets this
             echo ${lineparts[1]}
             found=true
             # exit does nothing
@@ -91,12 +92,12 @@ elif [[ $1 == "getRobot" ]]; then
     fi
     robotfile="/opt/AprilTags/data/robot.txt"
     if ! [[ -f $robotfile ]]; then
-        echo "cam locations file not found."
+        echo "robot.txt file not found."
         exit 1 # maybe stop using the same number
     fi
     robot=$(cat $robotfile)
     # verify that the file is not empty and if it is return cam if issues or error
-    if [[ ! -z ${valitem+x} ]]; then
+    if [[ ! -z ${robot+x} ]]; then
         echo $robot
         exit 0
     elif [[ ignoreMissingRobotArg ]]; then
