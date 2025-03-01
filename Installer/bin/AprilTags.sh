@@ -132,9 +132,14 @@ elif [ $update == "t" ]; then
     
     # backup the running config
     camlocsconfig="/opt/AprilTags/data/camlocations"
+    robotconfig="/opt/AprilTags/data/robot.txt"
     if [[ -f $camlocsconfig ]]; then
         printV "Found running config, moving it off to preserve"
         cp $camlocsconfig /tmp/ApriltagsCamlocs
+    fi
+    if [[ -f $robotconfig ]]; then
+        printV "Found robot, moving it off to preserve"
+        cp $camlocsconfig /tmp/ApriltagsRobot
     fi
 
     # disable the service to make sure stuff is ok
@@ -170,6 +175,12 @@ elif [ $update == "t" ]; then
         printV "putting the config back"
         cp /tmp/ApriltagsCamlocs $camlocsconfig
         rm /tmp/ApriltagsCamlocs
+    fi
+    if [[ -f /tmp/ApriltagsRobot ]]; then
+        # copy the config back
+        printV "putting the robo config back"
+        cp /tmp/ApriltagsRobot $robotconfig
+        rm /tmp/ApriltagsRobot
     fi
     
     printV "The files were sucessfully copied"

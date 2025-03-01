@@ -89,23 +89,15 @@ elif [[ $1 == "getRobot" ]]; then
     if [[ $2 == "ignoreNoRobot" ]]; then
         ignoreMissingRobotArg=true
     fi
-    camlocfile="/opt/AprilTags/data/camlocations"
-    if ! [[ -f $camlocfile ]]; then
+    robotfile="/opt/AprilTags/data/robot.txt"
+    if ! [[ -f $robotfile ]]; then
         echo "cam locations file not found."
         exit 1 # maybe stop using the same number
     fi
-    # must have the file, assume that the file is correct
-    set -e # just in case
-    found=false
-    cat $camlocfile | while read line || [ -n "$line" ] ; do
-        lineparts=($line)
-        if [[ "${lineparts[0]}" == "robot" ]]; then
-            echo ${lineparts[1]}
-            found=true
-            # exit does nothing
-        fi
-    done
-    if [[ found ]]; then
+    robot=$(cat $robotfile)
+    # verify that the file is not empty and if it is return cam if issues or error
+    if [[ ! -z ${valitem+x} ]]; then
+        echo $robot
         exit 0
     elif [[ ignoreMissingRobotArg ]]; then
         echo "cam"
