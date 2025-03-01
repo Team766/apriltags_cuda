@@ -44,22 +44,29 @@ if dpkg -l | grep -q cuda-toolkit-11-8; then
 fi
 
 # Setup static IP for the device
-echo "Please enter the IP that this device will be assigned in form of *.*.*.*/*:"
-read IP
-echo "network:
+echo "Do you want to setup this device to have a static IP? (y/N)"
+read setupIP
+case $setupIP in
+    yes|Y|y)
+        echo "Please enter the IP that this device will be assigned in form of *.*.*.*/*:"
+        read IP
+        sudo echo "network:
   version: 2
   renderer: NetworkManager
   ethernets:
     enp3s0:
       addresses:
         - $IP" > /etc/netplan/staticip.yaml
-netplan apply
+        sudo netplan apply
+	;;
+    *)
+        echo "Not setting up device with a static IP."
 
 # Set up NTP on device
 echo "Do you want to set up NTP to point to a server? (y/N)"
 read NTP
 case $NTP in
-    yesY)
+    yes|Y|y)
         echo "IP of server you want to sync with (in form *.*.*.*): "
 	read IP
 	rm /etc/ntp.conf
