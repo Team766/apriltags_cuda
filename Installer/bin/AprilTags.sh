@@ -67,6 +67,10 @@ while [[ $# -gt 0 ]]; do
       echo $VERSION
       exit 0
       ;;
+    -f|--force)
+      # this makes some things just happen, such as overwriting configs for cams
+      force=1
+      ;;
     *|-*|--*)
       echo "Unknown option $1"
       exit 1
@@ -133,11 +137,11 @@ elif [ $update == "t" ]; then
     # backup the running config
     camlocsconfig="/opt/AprilTags/data/camlocations"
     robotconfig="/opt/AprilTags/data/robot.txt"
-    if [[ -f $camlocsconfig ]]; then
+    if [[ -f $camlocsconfig ]] && [[ $force -ne 1 ]] ; then
         printV "Found running config, moving it off to preserve"
         cp $camlocsconfig /tmp/ApriltagsCamlocs
     fi
-    if [[ -f $robotconfig ]]; then
+    if [[ -f $robotconfig ]] && [[ $force -ne 1]] ; then
         printV "Found robot, moving it off to preserve"
         cp $camlocsconfig /tmp/ApriltagsRobot
     fi
