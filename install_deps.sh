@@ -32,7 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 sudo apt update -y
 sudo apt install -y wget build-essential cmake python3-dev python3-numpy libprotobuf-dev protobuf-compiler
 sudo apt install -y libgoogle-glog-dev libgtest-dev libssh-dev libxrandr-dev libxinerama-dev libstdc++-12-dev
-sudo apt install -y golang
+sudo apt install -y golang ntp
 
 # Check if clang-17 is installed.
 if ! dpkg -l | grep clang-17; then
@@ -52,9 +52,15 @@ case $arch in
         install_cuda_x86
         ;;
     aarch64)
-        echo "Installing cuda on jetson"
-        install_cuda_jetson
-        ;;
+        case $(cat /proc/cpuinfo) in
+	    *0xd42*)
+                echo "Installing cuda on jetson"
+                install_cuda_jetson
+                ;;    
+	    *)
+                echo "Device is not detected to be Jetson Orin Nano; Not installing CUDA."
+	        ;;
+            esac
     *)
         echo "Unknown architecture: $arch"
         # Handle unknown architecture here
