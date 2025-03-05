@@ -70,6 +70,7 @@ while [[ $# -gt 0 ]]; do
     -f|--force)
       # this makes some things just happen, such as overwriting configs for cams
       force="t"
+      shift
       ;;
     *|-*|--*)
       echo "Unknown option $1"
