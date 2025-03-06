@@ -12,7 +12,7 @@ case $setupIP in
   version: 2
   renderer: NetworkManager
   ethernets:
-    enp3s0:
+    br0:
       addresses:
         - $IP" > /etc/netplan/staticip.yaml' # you have to have this all in a quotation mark so the '>' runs with root access
         sudo netplan apply
