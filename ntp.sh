@@ -1,3 +1,6 @@
+# Install NTP
+sudo apt-get install ntp
+
 # Setup static IP for the device
 echo "Do you want to setup this device to have a static IP? (y/N)"
 read setupIP
