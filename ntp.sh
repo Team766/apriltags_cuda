@@ -8,13 +8,13 @@ case $setupIP in
     yes|Y|y)
         echo "Please enter the IP that this device will be assigned in form of *.*.*.*/*:"
         read IP
-        sudo echo "network:
+        sudo /bin/bash -c 'echo "network:
   version: 2
   renderer: NetworkManager
   ethernets:
     enp3s0:
       addresses:
-        - $IP" > /etc/netplan/staticip.yaml
+        - $IP" > /etc/netplan/staticip.yaml' # you have to have this all in a quotation mark so the '>' runs with root access
         sudo netplan apply
 	;;
     *)
