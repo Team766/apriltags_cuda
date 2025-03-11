@@ -64,23 +64,27 @@ if __name__ == "__main__":
       - Left/Right back cameras  => on Rev A these point forwards and are offset by Z
     """
 
+    cam_vec_z = np.array([0, 0, 1])
+
     # ------------------------------------------------------------
     # LEFT FRONT CAMERA
     # Camera is pointed backwards towards -X and up slightly
     LF_roll = 0.0
     LF_pitch = 23.98
-    LF_yaw = 0
+    LF_yaw = 180.0
 
     R_left_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
+    print(f'left front sanity check: {R_left_front @ cam_vec_z}')
 
     # ------------------------------------------------------------
     # RIGHT FRONT CAMERA
     # Same as left front camera
     LF_roll = 0.0
     LF_pitch = 23.98
-    LF_yaw = 0
+    LF_yaw = 180.0
 
     R_right_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
+    print(f'right front sanity check: {R_right_front @ cam_vec_z}')
 
     # ------------------------------------------------------------
     # LEFT BACK CAMERA
@@ -90,6 +94,7 @@ if __name__ == "__main__":
     LB_yaw = 45
 
     R_left_back = compose_rotations_xyz(LB_roll, LB_pitch, LB_yaw) @ camera_to_robot()
+    print(f'left back sanity check: {R_left_back @ cam_vec_z}')
 
     # ------------------------------------------------------------
     # RIGHT BACK CAMERA
@@ -99,6 +104,7 @@ if __name__ == "__main__":
     RB_yaw = -45
 
     R_right_back = compose_rotations_xyz(RB_roll, RB_pitch, RB_yaw) @ camera_to_robot()
+    print(f'right back sanity check: {R_right_back @ cam_vec_z}')
 
     rotation_data = {
         "left_front": np.round(R_left_front, 6).tolist(),
