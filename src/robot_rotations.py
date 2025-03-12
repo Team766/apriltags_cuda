@@ -70,7 +70,7 @@ if __name__ == "__main__":
     # LEFT FRONT CAMERA
     # Camera is pointed backwards towards -X and up slightly
     LF_roll = 0.0
-    LF_pitch = 23.98
+    LF_pitch = 23.0
     LF_yaw = 180.0
 
     R_left_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     # RIGHT FRONT CAMERA
     # Same as left front camera
     LF_roll = 0.0
-    LF_pitch = 23.98
+    LF_pitch = 23.0
     LF_yaw = 180.0
 
     R_right_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
