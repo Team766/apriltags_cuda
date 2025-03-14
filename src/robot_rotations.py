@@ -91,7 +91,7 @@ if __name__ == "__main__":
     # Camera points forward but yaws 45 degrees
     LB_roll = 0
     LB_pitch = 0
-    LB_yaw = 45
+    LB_yaw = 30
 
     R_left_back = compose_rotations_xyz(LB_roll, LB_pitch, LB_yaw) @ camera_to_robot()
     print(f'left back sanity check: {R_left_back @ cam_vec_z}')
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # Same as left back camera but yaws -45 degrees.
     RB_roll = 0
     RB_pitch = 0
-    RB_yaw = -45
+    RB_yaw = -30
 
     R_right_back = compose_rotations_xyz(RB_roll, RB_pitch, RB_yaw) @ camera_to_robot()
     print(f'right back sanity check: {R_right_back @ cam_vec_z}')
