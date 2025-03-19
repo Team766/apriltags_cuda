@@ -79,11 +79,11 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # RIGHT FRONT CAMERA
     # Same as left front camera
-    LF_roll = 0.0
-    LF_pitch = 23.0
-    LF_yaw = 180.0
+    RF_roll = 0.0
+    RF_pitch = 23.0
+    RF_yaw = 180.0
 
-    R_right_front = compose_rotations_xyz(LF_roll, LF_pitch, LF_yaw) @ camera_to_robot()
+    R_right_front = compose_rotations_xyz(RF_roll, RF_pitch, RF_yaw) @ camera_to_robot()
     print(f'right front sanity check: {R_right_front @ cam_vec_z}')
 
     # ------------------------------------------------------------
