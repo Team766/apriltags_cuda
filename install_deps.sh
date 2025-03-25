@@ -60,7 +60,8 @@ case $arch in
 	    *)
                 echo "Device is not detected to be Jetson Orin Nano; Not installing CUDA."
 	        ;;
-            esac
+        esac
+	;;
     *)
         echo "Unknown architecture: $arch"
         # Handle unknown architecture here
