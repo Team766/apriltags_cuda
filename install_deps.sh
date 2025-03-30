@@ -8,7 +8,7 @@ install_cuda_x86() {
 	sudo dpkg -i cuda-repo-ubuntu2204-11-8-local_11.8.0-520.61.05-1_amd64.deb
 	sudo cp /var/cuda-repo-ubuntu2204-11-8-local/cuda-*-keyring.gpg /usr/share/keyrings/
 	sudo apt-get update
-	sudo apt-get -y install cuda-11-8
+	sudo apt-get -y install cuda-toolkit-11-8
 }
 
 install_cuda_jetson() {
@@ -18,7 +18,7 @@ install_cuda_jetson() {
 	sudo dpkg -i cuda-tegra-repo-ubuntu2004-11-8-local_11.8.0-1_arm64.deb
 	sudo cp /var/cuda-tegra-repo-ubuntu2004-11-8-local/cuda-*-keyring.gpg /usr/share/keyrings/
 	sudo apt-get update
-	sudo apt-get -y install cuda-11-8
+	sudo apt-get -y install cuda-toolkit-11-8
 }
 
 install_llvm() {
