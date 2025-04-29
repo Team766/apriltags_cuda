@@ -13,7 +13,7 @@ function unlnifthere() {
 }
 
 # stop the service then it dies, then remove it
-systemctl disable AprilTagsPipeline.service
+systemctl disable --now AprilTagsPipeline.service
 rm /etc/systemd/system/AprilTagsPipeline.service
 systemctl daemon-reload
 
