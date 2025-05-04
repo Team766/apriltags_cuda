@@ -198,7 +198,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
       }
     }
     double offsetCoeficients[3] = {0,0,0};
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < 3; i++){
       offsetCoeficients[i] = data2["offset"][i];
     }
 
