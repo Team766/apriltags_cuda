@@ -17,10 +17,14 @@ DoubleValueSender::DoubleValueSender(std::string key) {
   publisher_ = topic.Publish();
 }
 
-void DoubleValueSender::sendValue(double value) { publisher_.Set(value); }
+void DoubleValueSender::sendValue(double value) { 
+  publisher_.Set(value);
+  inst_.Flush();
+}
 
 void DoubleValueSender::setDefaultValue(double value) {
   publisher_.SetDefault(value);
+  inst_.Flush();
 }
 
 // Class use example
