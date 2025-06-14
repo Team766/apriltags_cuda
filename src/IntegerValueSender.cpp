@@ -18,7 +18,7 @@ IntegerValueSender::IntegerValueSender(std::string key) {
 }
 
 void IntegerValueSender::sendValue(int value) {
-  publisher_.Set(value); 
+  publisher_.Set(value);
   inst_.Flush();
 }
 

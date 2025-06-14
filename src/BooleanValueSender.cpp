@@ -17,7 +17,7 @@ BooleanValueSender::BooleanValueSender(std::string key) {
   publisher_ = topic.Publish();
 }
 
-void BooleanValueSender::sendValue(bool value) { 
+void BooleanValueSender::sendValue(bool value) {
   publisher_.Set(value);
   inst_.Flush();
 }
