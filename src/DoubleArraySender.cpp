@@ -18,6 +18,7 @@ DoubleArraySender::DoubleArraySender(std::string key) {
 }
 void DoubleArraySender::sendValue(std::vector<double> value) {
   publisher_.Set(value);
+  inst_.Flush();
 }
 void DoubleArraySender::setDefaultValue(std::vector<double> value) {
   publisher_.SetDefault(value);

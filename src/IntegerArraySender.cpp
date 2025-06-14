@@ -18,6 +18,7 @@ IntegerArraySender::IntegerArraySender(std::string key) {
 }
 void IntegerArraySender::sendValue(std::span<const int64_t> value) {
   publisher_.Set(value);
+  inst_.Flush();
 }
 void IntegerArraySender::setDefaultValue(std::span<const int64_t> value) {
   publisher_.SetDefault(value);

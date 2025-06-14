@@ -17,7 +17,10 @@ IntegerValueSender::IntegerValueSender(std::string key) {
   publisher_ = topic.Publish();
 }
 
-void IntegerValueSender::sendValue(int value) { publisher_.Set(value); }
+void IntegerValueSender::sendValue(int value) {
+  publisher_.Set(value); 
+  inst_.Flush();
+}
 
 void IntegerValueSender::setDefaultValue(int value) {
   publisher_.SetDefault(value);
