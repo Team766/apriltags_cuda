@@ -17,7 +17,7 @@ DoubleValueSender::DoubleValueSender(std::string key) {
   publisher_ = topic.Publish();
 }
 
-void DoubleValueSender::sendValue(double value) { 
+void DoubleValueSender::sendValue(double value) {
   publisher_.Set(value);
   inst_.Flush();
 }
