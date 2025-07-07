@@ -397,7 +397,7 @@ class AprilTagHandler : public seasocks::WebSocket::Handler {
         draw_detection_outlines(bgr_img, const_cast<zarray_t*>(detections));
 
         // Broadcast the image to websocket clients.
-        if (frame_counter % 50 == 0) {
+        if (frame_counter % 10 == 0) {
           // Encode the image to JPEG
           std::vector<uchar> buffer;
           cv::imencode(".jpg", bgr_img, buffer);
