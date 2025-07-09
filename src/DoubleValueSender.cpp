@@ -24,6 +24,7 @@ void DoubleValueSender::sendValue(double value) {
 
 void DoubleValueSender::setDefaultValue(double value) {
   publisher_.SetDefault(value);
+  inst_.Flush();
 }
 
 // Class use example

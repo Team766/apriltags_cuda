@@ -22,6 +22,8 @@ function killIfRunning() {
 # set clocks to max frequency (jetson only)
 jetson_clocks || true 1>&2 >> /dev/null
 
+sudo systemctl restart ntp
+
 #open source for args
 source /opt/AprilTags/args
 
